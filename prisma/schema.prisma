@@ -1,0 +1,96 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["proyecto5"]
+}
+
+enum EvaluationType {
+  multiple
+  vf
+  abierta
+
+  @@schema("proyecto5")
+}
+
+model Student {
+  id             Int    @id @default(autoincrement())
+  nombre         String
+  apellido       String
+  identificacion String @unique
+  correo         String @unique
+  password       String
+  estado         String
+
+  @@schema("proyecto5")
+}
+
+model Teacher {
+  id             Int    @id @default(autoincrement())
+  nombre         String
+  identificacion String @unique
+  correo         String @unique
+  titulo         String
+  password       String
+  estado         String
+
+  evaluations Evaluation[]
+
+  @@schema("proyecto5")
+}
+
+model Question {
+  id        Int     @id @default(autoincrement())
+  enunciado String
+  opcionA   String?
+  opcionB   String?
+  opcionC   String?
+  opcionD   String?
+  respuesta String
+
+  evaluations EvaluationQuestion[]
+
+  @@schema("proyecto5")
+}
+
+model Scale {
+  id     Int    @id @default(autoincrement())
+  nombre String
+  min    Int
+  max    Int
+
+  evaluations Evaluation[]
+
+  @@schema("proyecto5")
+}
+
+model Evaluation {
+  id       Int            @id @default(autoincrement())
+  nombre   String
+  tipo     EvaluationType
+  cantidad Int
+
+  docenteId Int
+  docente   Teacher @relation(fields: [docenteId], references: [id])
+
+  escalaId Int
+  escala   Scale @relation(fields: [escalaId], references: [id])
+
+  preguntas EvaluationQuestion[]
+
+  @@schema("proyecto5")
+}
+
+model EvaluationQuestion {
+  evaluationId Int
+  questionId   Int
+
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  question   Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([evaluationId, questionId])
+  @@schema("proyecto5")
+}
