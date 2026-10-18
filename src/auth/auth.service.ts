@@ -1,34 +1,31 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { comparePassword } from './password';
-import { LoginDto } from './dto/login.dto';
+import { verifyPassword } from './password';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
+    private usersService: UsersService,
+    private jwtService: JwtService
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findByUsernameForAuth(username);
-    if (user && (await comparePassword(pass, user.passwordHash))) {
-      const { passwordHash, ...result } = user;
-      return result;
-    }
-    return null;
-  }
-
-  async login(loginDto: LoginDto) {
-    const user = await this.validateUser(loginDto.username, loginDto.password);
-    if (!user) {
+  async login(username: string, pass: string) {
+    const user = await this.usersService.findCredentialsByUsername(username);
+    const dummyHash = 'scrypt$16384$8$1$dummysalt$dummykey';
+    const valid = await verifyPassword(pass, user ? user.passwordHash : dummyHash);
+    
+    if (!user || !valid) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
-    const payload = { username: user.username, sub: user.id, role: user.role };
-    return {
-      access_token: this.jwtService.sign(payload),
-      user,
+
+    const access_token = await this.jwtService.signAsync({ sub: user.id });
+    const payload = this.jwtService.decode<{ exp: number; iat: number }>(access_token);
+    
+    return { 
+      access_token, 
+      token_type: 'Bearer' as const, 
+      expires_in: payload.exp - payload.iat 
     };
   }
 }
