@@ -1,38 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateEstudianteDto } from './dto/create-estudiante.dto';
-import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
+import { hashPassword } from '../auth/password';
 
 @Injectable()
 export class EstudiantesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  create(createEstudianteDto: CreateEstudianteDto) {
-    return this.prisma.student.create({
-      data: createEstudianteDto,
-    });
+  async create(data: any) {
+    if (data.password) {
+      data.password = await hashPassword(data.password);
+    }
+    return this.prisma.student.create({ data });
   }
 
-  findAll() {
+  async findAll() {
     return this.prisma.student.findMany();
   }
 
-  findOne(id: number) {
-    return this.prisma.student.findUnique({
-      where: { id },
-    });
+  async findOne(id: number) {
+    const student = await this.prisma.student.findUnique({ where: { id } });
+    if (!student) throw new NotFoundException(`Estudiante #${id} no encontrado`);
+    return student;
   }
 
-  update(id: number, updateEstudianteDto: UpdateEstudianteDto) {
-    return this.prisma.student.update({
-      where: { id },
-      data: updateEstudianteDto,
-    });
+  async update(id: number, data: any) {
+    if (data.password) {
+      data.password = await hashPassword(data.password);
+    }
+    await this.findOne(id);
+    return this.prisma.student.update({ where: { id }, data });
   }
 
-  remove(id: number) {
-    return this.prisma.student.delete({
-      where: { id },
-    });
+  async remove(id: number) {
+    await this.findOne(id);
+    return this.prisma.student.delete({ where: { id } });
   }
 }

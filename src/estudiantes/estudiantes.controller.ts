@@ -1,15 +1,13 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { EstudiantesService } from './estudiantes.service';
-import { CreateEstudianteDto } from './dto/create-estudiante.dto';
-import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
 
-@Controller('estudiantes')
+@Controller('api/v1/estudiantes')
 export class EstudiantesController {
   constructor(private readonly estudiantesService: EstudiantesService) {}
 
   @Post()
-  create(@Body() createEstudianteDto: CreateEstudianteDto) {
-    return this.estudiantesService.create(createEstudianteDto);
+  create(@Body() createDto: any) {
+    return this.estudiantesService.create(createDto);
   }
 
   @Get()
@@ -23,12 +21,12 @@ export class EstudiantesController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateEstudianteDto: UpdateEstudianteDto) {
-    return this.estudiantesService.update(id, updateEstudianteDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateDto: any) {
+    return this.estudiantesService.update(id, updateDto);
   }
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.estudiantesService.remove(id);
   }
-} 
+}

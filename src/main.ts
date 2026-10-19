@@ -1,12 +1,14 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  await app.listen(process.env.PORT ?? 3000);
+
+  // Permitir la conexión desde tu Frontend Angular
+  app.enableCors();
+
+  const PORT = process.env.PORT || 3000;
+  await app.listen(PORT);
+  console.log(`Backend listo en http://localhost:${PORT}/api/v1`);
 }
 bootstrap();

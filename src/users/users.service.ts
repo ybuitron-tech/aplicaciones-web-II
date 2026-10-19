@@ -17,7 +17,7 @@ export class UsersService {
     });
   }
 
-  async create(data: any) {
+  async create(data: { username: string; passwordHash: string; role: 'ADMINISTRATOR' | 'EVALUATOR' }) {
     return this.prisma.user.create({
       data,
     });
