@@ -5,6 +5,11 @@ import { EstudiantesService } from './estudiantes.service';
 export class EstudiantesController {
   constructor(private readonly estudiantesService: EstudiantesService) {}
 
+  @Post('login')
+  login(@Body() body: { identificacion: string; password: string }) {
+    return this.estudiantesService.login(body?.identificacion, body?.password);
+  }
+
   @Post()
   create(@Body() createDto: any) {
     return this.estudiantesService.create(createDto);
