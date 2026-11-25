@@ -5,6 +5,15 @@ import {
   UpdateEvaluacionDto,
 } from './dto/evaluacion.dto';
 
+const DOCENTE_PUBLICO = {
+  id: true,
+  nombre: true,
+  identificacion: true,
+  correo: true,
+  titulo: true,
+  estado: true,
+};
+
 @Injectable()
 export class EvaluacionesService {
   constructor(private prisma: PrismaService) {}
@@ -24,7 +33,7 @@ export class EvaluacionesService {
   async findAll() {
     return this.prisma.evaluation.findMany({
       include: {
-        docente: true,
+        docente: { select: DOCENTE_PUBLICO },
         escala: true,
         preguntas: { include: { question: true } },
       },
@@ -36,7 +45,7 @@ export class EvaluacionesService {
     const evaluation = await this.prisma.evaluation.findUnique({
       where: { id },
       include: {
-        docente: true,
+        docente: { select: DOCENTE_PUBLICO },
         escala: true,
         preguntas: { include: { question: true } },
       },

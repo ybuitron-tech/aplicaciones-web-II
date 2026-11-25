@@ -33,4 +33,32 @@ describe('UsersService', () => {
       where: { username: 'admin' },
     });
   });
+
+  it('no expone passwordHash en findOne', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'u1',
+      username: 'admin',
+      passwordHash: 'hash-secreto',
+      role: 'ADMINISTRATOR',
+    });
+    const resultado: any = await service.findOne('u1');
+    expect(resultado.passwordHash).toBeUndefined();
+    expect(resultado.username).toBe('admin');
+  });
+
+  it('no expone passwordHash al crear un usuario', async () => {
+    prisma.user.create.mockResolvedValue({
+      id: 'u2',
+      username: 'evaluador',
+      passwordHash: 'hash-secreto',
+      role: 'EVALUATOR',
+    });
+    const resultado: any = await service.create({
+      username: 'evaluador',
+      passwordHash: 'hash-secreto',
+      role: 'EVALUATOR',
+    });
+    expect(resultado.passwordHash).toBeUndefined();
+    expect(resultado.username).toBe('evaluador');
+  });
 });

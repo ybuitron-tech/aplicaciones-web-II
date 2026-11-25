@@ -12,14 +12,21 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
     });
+    return user ? this.sinPasswordHash(user) : null;
   }
 
   async create(data: { username: string; passwordHash: string; role: 'ADMINISTRATOR' | 'EVALUATOR' }) {
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data,
     });
+    return this.sinPasswordHash(user);
+  }
+
+  private sinPasswordHash(user: any) {
+    const { passwordHash, ...seguro } = user;
+    return seguro;
   }
 }
