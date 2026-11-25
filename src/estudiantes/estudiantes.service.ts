@@ -37,6 +37,14 @@ export class EstudiantesService {
     return this.sinPassword(estudiante);
   }
 
+  async existeIdentificacion(identificacion: string): Promise<boolean> {
+    const estudiante = await this.prisma.student.findUnique({
+      where: { identificacion },
+      select: { id: true },
+    });
+    return !!estudiante;
+  }
+
   async login(dto: LoginEstudianteDto) {
     const estudiante = await this.prisma.student.findUnique({
       where: { identificacion: dto.identificacion },

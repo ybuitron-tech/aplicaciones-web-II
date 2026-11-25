@@ -2,8 +2,8 @@ import { PartialType } from '@nestjs/mapped-types';
 import {
   IsEmail,
   IsIn,
-  IsInt,
   IsNotEmpty,
+  IsNumber,
   IsString,
   Matches,
   Max,
@@ -50,9 +50,9 @@ export class LoginEstudianteDto {
 }
 
 export class ResultadoEstudianteDto {
-  @IsInt()
+  @IsNumber({}, { message: 'La nota debe ser un número' })
   @Min(0)
-  @Max(5)
+  @Max(1000)
   nota!: number;
 
   @IsIn(['aprobado', 'reprobado', 'pendiente'])

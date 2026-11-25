@@ -7,6 +7,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env.PROYECTO5_DATABASE_URL,
+    // Las migraciones usan la conexión directa (5432); el runtime usa el pooler (6543).
+    url: process.env.DIRECT_URL || process.env.PROYECTO5_DATABASE_URL,
   },
 });

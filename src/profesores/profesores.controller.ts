@@ -5,11 +5,13 @@ import {
   LoginProfesorDto,
   UpdateProfesorDto,
 } from './dto/profesor.dto';
+import { Public } from '../auth/public.decorator';
 
 @Controller('api/v1/profesores')
 export class ProfesoresController {
   constructor(private readonly profesoresService: ProfesoresService) {}
 
+  @Public()
   @Post('login')
   login(@Body() dto: LoginProfesorDto) {
     return this.profesoresService.login(dto);

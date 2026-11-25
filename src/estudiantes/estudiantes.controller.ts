@@ -6,19 +6,29 @@ import {
   ResultadoEstudianteDto,
   UpdateEstudianteDto,
 } from './dto/estudiante.dto';
+import { Public } from '../auth/public.decorator';
 
 @Controller('api/v1/estudiantes')
 export class EstudiantesController {
   constructor(private readonly estudiantesService: EstudiantesService) {}
 
+  @Public()
   @Post('login')
   login(@Body() dto: LoginEstudianteDto) {
     return this.estudiantesService.login(dto);
   }
 
+  // Registro público: cualquiera puede crear su cuenta de estudiante.
+  @Public()
   @Post()
   create(@Body() dto: CreateEstudianteDto) {
     return this.estudiantesService.create(dto);
+  }
+
+  @Public()
+  @Get('existe/:identificacion')
+  existeIdentificacion(@Param('identificacion') identificacion: string) {
+    return this.estudiantesService.existeIdentificacion(identificacion);
   }
 
   @Get()

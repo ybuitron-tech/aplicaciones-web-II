@@ -1,0 +1,25 @@
+# Blueprint de Render para la API NestJS.
+# La base de datos PostgreSQL se gestiona en Supabase (fuera de Render).
+
+services:
+  - type: web
+    name: aplicaciones-web-ii-api
+    runtime: node
+    plan: free
+    branch: deploy-render-supabase
+    buildCommand: npm install && npm run build && npx prisma migrate deploy
+    startCommand: npm run start:prod
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: PROYECTO5_DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_ORIGIN
+        sync: false
