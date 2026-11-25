@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class CreatePreguntaDto {
   @IsString()
@@ -25,6 +25,12 @@ export class CreatePreguntaDto {
   @IsString()
   @IsNotEmpty()
   respuesta!: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(300)
+  tiempo?: number;
 }
 
 export class UpdatePreguntaDto extends PartialType(CreatePreguntaDto) {}

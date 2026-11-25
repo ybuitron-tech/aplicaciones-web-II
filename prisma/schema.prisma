@@ -52,6 +52,7 @@ model Question {
   opcionC   String?
   opcionD   String?
   respuesta String
+  tiempo    Int?
 
   evaluations EvaluationQuestion[]
 

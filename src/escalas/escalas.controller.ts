@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { EscalasService } from './escalas.service';
-import { CreateEscalaDto } from './dto/escala.dto';
+import { CreateEscalaDto, UpdateEscalaDto } from './dto/escala.dto';
 
 @Controller('api/v1/escalas')
 export class EscalasController {
@@ -19,6 +19,11 @@ export class EscalasController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.escalasService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateEscalaDto) {
+    return this.escalasService.update(id, dto);
   }
 
   @Delete(':id')

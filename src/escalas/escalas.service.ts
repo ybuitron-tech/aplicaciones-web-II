@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateEscalaDto } from './dto/escala.dto';
+import { CreateEscalaDto, UpdateEscalaDto } from './dto/escala.dto';
 
 @Injectable()
 export class EscalasService {
@@ -20,6 +20,11 @@ export class EscalasService {
     const escala = await this.prisma.scale.findUnique({ where: { id } });
     if (!escala) throw new NotFoundException(`Escala #${id} no encontrada`);
     return escala;
+  }
+
+  async update(id: number, dto: UpdateEscalaDto) {
+    await this.findOne(id);
+    return this.prisma.scale.update({ where: { id }, data: dto });
   }
 
   async remove(id: number) {

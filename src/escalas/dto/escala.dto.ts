@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/mapped-types';
 import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
 
 export class CreateEscalaDto {
@@ -10,6 +11,9 @@ export class CreateEscalaDto {
   min!: number;
 
   @IsInt()
-  @Max(5)
+  @Min(1)
+  @Max(1000)
   max!: number;
 }
+
+export class UpdateEscalaDto extends PartialType(CreateEscalaDto) {}
