@@ -7,8 +7,9 @@ services:
     runtime: node
     plan: free
     branch: deploy-render-supabase
-    buildCommand: npm install && npm run build && npx prisma migrate deploy
-    startCommand: npm run start:prod
+    # Las migraciones se aplicaron manualmente en el SQL Editor de Supabase.
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: node dist/src/main
     healthCheckPath: /
     envVars:
       - key: NODE_ENV

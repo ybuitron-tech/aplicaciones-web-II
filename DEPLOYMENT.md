@@ -50,15 +50,12 @@ Si falta `JWT_SECRET` o `FRONTEND_ORIGIN` con `NODE_ENV=production`, el backend 
    - `DIRECT_URL` → conexión directa (5432).
    - `FRONTEND_ORIGIN` → la URL de Vercel, sin barra final.
    - `JWT_SECRET` se genera automáticamente; guárdala en un lugar seguro si quieres reutilizarla.
-3. El `buildCommand` instala dependencias, compila y ejecuta `prisma migrate deploy`.
-   Las migraciones se aplican solas en cada despliegue.
-4. El `healthCheckPath` es `/` y es público (devuelve 200).
-5. Tras el primer despliegue, ejecuta el seed una única vez desde la consola de Render
-   (**Shell** del servicio), o en local apuntando a Supabase:
-
-   ```bash
-   npm run db:seed
-   ```
+3. El `buildCommand` instala dependencias (incluyendo devDependencies, necesarias para
+   `nest build`) y compila. El `startCommand` ejecuta `node dist/src/main`.
+4. Las migraciones y el seed se aplicaron manualmente en el **SQL Editor de Supabase**
+   porque la conexión directa (5432) no está disponible desde Render ni desde la máquina
+   local. Los archivos están en `prisma/migrations` y `prisma/seed.ts`.
+5. El `healthCheckPath` es `/` y es público (devuelve 200).
 
    El seed crea escalas, dos docentes, preguntas de ejemplo y una evaluación demo.
    Los docentes se crean con contraseña `123456` (hasheada).
@@ -67,8 +64,8 @@ Si falta `JWT_SECRET` o `FRONTEND_ORIGIN` con `NODE_ENV=production`, el backend 
 
 ```bash
 npm install
-npx prisma migrate deploy
-npm run db:seed
+npx prisma migrate deploy   # solo si la conexión directa a Supabase está disponible
+npm run db:seed             # ídem
 npm run start:dev
 ```
 
