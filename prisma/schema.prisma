@@ -24,6 +24,8 @@ model Student {
   correo         String @unique
   password       String
   estado         String
+  nota           Float?
+  estadoResultado String? @default("pendiente")
 
   @@schema("proyecto5")
 }

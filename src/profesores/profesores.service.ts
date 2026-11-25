@@ -1,69 +1,86 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { hashPassword, verifyPassword } from '../auth/password';
+import { jwtExpiresIn } from '../auth/auth.config';
+import {
+  CreateProfesorDto,
+  LoginProfesorDto,
+  UpdateProfesorDto,
+} from './dto/profesor.dto';
 
 @Injectable()
 export class ProfesoresService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwt: JwtService,
+  ) {}
 
-  async create(data: any) {
-    const payload = this.sanitizar(data);
-    if (payload.password) {
-      payload.password = await hashPassword(payload.password);
-    }
-    return this.prisma.teacher.create({ data: payload });
+  async create(dto: CreateProfesorDto) {
+    const payload: any = { ...dto };
+    payload.password = await hashPassword(payload.password);
+    const creado = await this.prisma.teacher.create({ data: payload });
+    return this.sinPassword(creado);
   }
 
   async findAll() {
-    const profesores = await this.prisma.teacher.findMany();
-    return profesores.map(({ password, ...seguro }) => seguro);
+    const profesores = await this.prisma.teacher.findMany({
+      orderBy: { id: 'desc' },
+    });
+    return profesores.map((profesor) => this.sinPassword(profesor));
   }
 
   async findOne(id: number) {
     const profesor = await this.prisma.teacher.findUnique({ where: { id } });
     if (!profesor) throw new NotFoundException(`Profesor #${id} no encontrado`);
-    const { password, ...seguro } = profesor;
-    return seguro;
+    return this.sinPassword(profesor);
   }
 
-  async login(identificacion: string, password: string) {
-    if (!identificacion || !password) {
-      throw new UnauthorizedException('Credenciales incompletas');
-    }
-
+  async login(dto: LoginProfesorDto) {
     const profesor = await this.prisma.teacher.findUnique({
-      where: { identificacion },
+      where: { identificacion: dto.identificacion },
     });
 
-    if (!profesor || !(await verifyPassword(password, profesor.password))) {
+    if (!profesor || !(await verifyPassword(dto.password, profesor.password))) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const { password: _hash, ...seguro } = profesor;
-    return seguro;
+    const access_token = await this.jwt.signAsync({
+      sub: profesor.id,
+      rol: 'DOCENTE',
+    });
+
+    return {
+      access_token,
+      token_type: 'Bearer',
+      expires_in: jwtExpiresIn,
+      docente: this.sinPassword(profesor),
+    };
   }
 
-  async update(id: number, data: any) {
-    const payload = this.sanitizar(data);
+  async update(id: number, dto: UpdateProfesorDto) {
+    const payload: any = { ...dto };
     if (payload.password) {
       payload.password = await hashPassword(payload.password);
+    } else {
+      delete payload.password;
     }
     await this.prisma.teacher.findUniqueOrThrow({ where: { id } });
-    const actualizado = await this.prisma.teacher.update({ where: { id }, data: payload });
-    const { password, ...seguro } = actualizado;
-    return seguro;
+    const actualizado = await this.prisma.teacher.update({
+      where: { id },
+      data: payload,
+    });
+    return this.sinPassword(actualizado);
   }
 
   async remove(id: number) {
     await this.prisma.teacher.findUniqueOrThrow({ where: { id } });
-    return this.prisma.teacher.delete({ where: { id } });
+    await this.prisma.teacher.delete({ where: { id } });
+    return { eliminado: true, id };
   }
 
-  private sanitizar(data: any) {
-    const permitidos = ['nombre', 'identificacion', 'correo', 'titulo', 'password', 'estado'];
-    return permitidos.reduce((acc, key) => {
-      if (data?.[key] !== undefined && data[key] !== '') acc[key] = data[key];
-      return acc;
-    }, {} as any);
+  private sinPassword(profesor: any) {
+    const { password, ...seguro } = profesor;
+    return seguro;
   }
 }

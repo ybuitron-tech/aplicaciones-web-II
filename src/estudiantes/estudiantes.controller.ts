@@ -1,18 +1,24 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { EstudiantesService } from './estudiantes.service';
+import {
+  CreateEstudianteDto,
+  LoginEstudianteDto,
+  ResultadoEstudianteDto,
+  UpdateEstudianteDto,
+} from './dto/estudiante.dto';
 
 @Controller('api/v1/estudiantes')
 export class EstudiantesController {
   constructor(private readonly estudiantesService: EstudiantesService) {}
 
   @Post('login')
-  login(@Body() body: { identificacion: string; password: string }) {
-    return this.estudiantesService.login(body?.identificacion, body?.password);
+  login(@Body() dto: LoginEstudianteDto) {
+    return this.estudiantesService.login(dto);
   }
 
   @Post()
-  create(@Body() createDto: any) {
-    return this.estudiantesService.create(createDto);
+  create(@Body() dto: CreateEstudianteDto) {
+    return this.estudiantesService.create(dto);
   }
 
   @Get()
@@ -25,9 +31,17 @@ export class EstudiantesController {
     return this.estudiantesService.findOne(id);
   }
 
+  @Patch(':id/resultado')
+  guardarResultado(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ResultadoEstudianteDto,
+  ) {
+    return this.estudiantesService.guardarResultado(id, dto);
+  }
+
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateDto: any) {
-    return this.estudiantesService.update(id, updateDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateEstudianteDto) {
+    return this.estudiantesService.update(id, dto);
   }
 
   @Delete(':id')

@@ -1,5 +1,7 @@
-export const jwtSecret = process.env.JWT_SECRET || 'mi_clave_123';
-export const jwtExpiresIn = process.env.JWT_EXPIRES_IN ? parseInt(process.env.JWT_EXPIRES_IN, 10) : 86400;
+import { getJwtExpiresIn, getJwtSecret } from '../config/env';
+
+export const jwtSecret = getJwtSecret();
+export const jwtExpiresIn = getJwtExpiresIn();
 
 export const jwtOptions = () => ({
   secret: jwtSecret,

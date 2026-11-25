@@ -5,14 +5,15 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
+import { jwtOptions } from './auth.config';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'mi_clave_123',
-      signOptions: { expiresIn: '24h' },
+      global: true,
+      ...jwtOptions(),
     }),
   ],
   controllers: [AuthController],

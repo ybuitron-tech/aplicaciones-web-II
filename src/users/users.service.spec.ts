@@ -1,25 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { UsersService } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
 
-@Injectable()
-export class UsersService {
-  constructor(private prisma: PrismaService) {}
+describe('UsersService', () => {
+  let service: UsersService;
+  let prisma: any;
 
-  async findCredentialsByUsername(username: string) {
-    return this.prisma.user.findUnique({
-      where: { username },
-    });
-  }
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UsersService,
+        {
+          provide: PrismaService,
+          useValue: {
+            user: {
+              findUnique: jest.fn().mockResolvedValue({ id: 'u1', username: 'admin' }),
+              create: jest.fn(),
+            },
+          },
+        },
+      ],
+    }).compile();
 
-  async findOne(id: string) {
-    return this.prisma.user.findUnique({
-      where: { id },
-    });
-  }
+    service = module.get<UsersService>(UsersService);
+    prisma = module.get(PrismaService);
+  });
 
-  async create(data: any) {
-    return this.prisma.user.create({
-      data,
+  it('busca credenciales por username', async () => {
+    const resultado = await service.findCredentialsByUsername('admin');
+    expect(resultado.username).toBe('admin');
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      where: { username: 'admin' },
     });
-  }
-}
+  });
+});

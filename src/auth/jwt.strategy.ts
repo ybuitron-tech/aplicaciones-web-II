@@ -5,7 +5,8 @@ import { UsersService } from '../users/users.service';
 import { jwtOptions } from './auth.config';
 
 interface JwtPayload {
-  sub: string;
+  sub: string | number;
+  rol?: string;
   exp: number;
 }
 
@@ -24,18 +25,22 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JwtPayload) {
-    if (
-      typeof payload.sub !== 'string' ||
-      !UUID_PATTERN.test(payload.sub) ||
-      typeof payload.exp !== 'number'
-    ) {
+    if (payload?.sub === undefined || typeof payload.exp !== 'number') {
       throw new UnauthorizedException('Invalid token payload');
     }
 
-    try {
-      return await this.usersService.findOne(payload.sub);
-    } catch {
-      throw new UnauthorizedException('User no longer exists');
+    // Tokens emitidos por el login de estudiantes/docentes
+    if (payload.rol) {
+      return { id: payload.sub, rol: payload.rol };
     }
+
+    // Tokens legacy del login con la tabla User
+    if (typeof payload.sub === 'string' && UUID_PATTERN.test(payload.sub)) {
+      const user = await this.usersService.findOne(payload.sub);
+      if (!user) throw new UnauthorizedException('User no longer exists');
+      return user;
+    }
+
+    throw new UnauthorizedException('Invalid token payload');
   }
 }

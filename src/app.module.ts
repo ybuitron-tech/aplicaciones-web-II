@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { EscalasModule } from './escalas/escalas.module';
 import { EvaluacionesModule } from './evaluaciones/evaluaciones.module';
+import { PreguntasModule } from './preguntas/preguntas.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EvaluacionesModule } from './evaluaciones/evaluaciones.module';
     ProfesoresModule,
     EscalasModule,
     EvaluacionesModule,
+    PreguntasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

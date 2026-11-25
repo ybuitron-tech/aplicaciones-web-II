@@ -1,13 +1,14 @@
 import { Controller, Get, Post, Body, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { EscalasService } from './escalas.service';
+import { CreateEscalaDto } from './dto/escala.dto';
 
 @Controller('api/v1/escalas')
 export class EscalasController {
   constructor(private readonly escalasService: EscalasService) {}
 
   @Post()
-  create(@Body() body: { nombre: string; min: number; max: number }) {
-    return this.escalasService.create(body);
+  create(@Body() dto: CreateEscalaDto) {
+    return this.escalasService.create(dto);
   }
 
   @Get()
